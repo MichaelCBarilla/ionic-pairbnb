@@ -15,7 +15,7 @@ export class ImagePickerComponent implements OnInit {
   ngOnInit() {}
 
   onPickImage() {
-    if (Capacitor.isPluginAvailable('Camera')) {
+    if (!Capacitor.isPluginAvailable('Camera')) {
       return;
     }
     Plugins.Camera.getPhoto({
