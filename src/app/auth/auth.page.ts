@@ -1,9 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormControl, NgForm } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController } from '@ionic/angular';
 
-import { AuthService } from './auth.service';
+import { AuthService, AuthResponseData } from './auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -26,12 +27,17 @@ export class AuthPage implements OnInit {
 
   authenticate(email: string, password: string) {
     this.isLoading = true;
-    this.authService.login();
     this.loadingCtrl
       .create({keyboardClose: true, message: 'Logging in...'})
       .then(loadingEl => {
         loadingEl.present();
-        this.authService.signup(email, password).subscribe(response => {
+        let authObs: Observable<AuthResponseData>;
+        if (this.isLogin) {
+          authObs = this.authService.login(email, password);
+        } else {
+          authObs = this.authService.signup(email, password)
+        }
+        authObs.subscribe(response => {
           console.log(response);
           this.isLoading = false;
           loadingEl.dismiss();
@@ -42,6 +48,10 @@ export class AuthPage implements OnInit {
           let message = 'Could not sign you up, please try again';
           if (code === 'EMAIL_EXISTS') {
             message = 'This email address already exists!';
+          } else if (code === 'EMAIL_NOT_FOUND') {
+            message = 'E-mail address could not be found';
+          } else if (code === 'INVALID_PASSWORD') {
+            message = 'This password is not correct.';
           }
           this.showAlert(message);
         });
