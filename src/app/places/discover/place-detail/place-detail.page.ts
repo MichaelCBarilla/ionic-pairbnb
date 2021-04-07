@@ -1,3 +1,4 @@
+import { switchMap, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,13 +42,23 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
       this.isLoading = true;
-      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(
-        place => {
+      let fetchedUserId: string;
+      this.authService.userId
+        .pipe(
+          take(1),
+          switchMap(userId => {
+            if (!userId) {
+              throw new Error('Found no user!');
+            }
+            fetchedUserId = userId
+            return this.placesService.getPlace(paramMap.get('placeId'));
+          })
+        )
+        .subscribe(place => {
           this.place = place;
-          this.isBookable = place.userId !== this.authService.userId;
+          this.isBookable = place.userId !== fetchedUserId;
           this.isLoading = false;
-        },
-        error => {
+        }, error => {
           this.alertCtrl
             .create({
               header: 'An error occured!',
@@ -60,13 +71,12 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
                   }
                 }
               ]
-            }).then(
-              alertEl => {
+            }).then(alertEl => {
                 alertEl.present();
               }
-            )
+            );
       });
-    })
+    });
   }
 
   onBookPlace() {

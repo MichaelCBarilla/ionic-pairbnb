@@ -37,10 +37,10 @@ export class ImagePickerComponent implements OnInit {
       source: CameraSource.Prompt,
       correctOrientation: true,
       width: 600,
-      resultType: CameraResultType.DataUrl
+      resultType: CameraResultType.Base64
     }).then(image => {
-      this.selectedImage = image.dataUrl;
-      this.imagePick.emit(image.dataUrl);
+      this.selectedImage = image.base64String;
+      this.imagePick.emit(image.base64String);
     }).catch(error => {
       if (this.usePicker) {
         this.filePickerRef.nativeElement.click();
@@ -59,6 +59,7 @@ export class ImagePickerComponent implements OnInit {
       const dataUrl = fr.result.toString();
       this.selectedImage = dataUrl;
       this.imagePick.emit(pickedFile);
+      console.log(fr);
     };
     fr.readAsDataURL(pickedFile);
   }
