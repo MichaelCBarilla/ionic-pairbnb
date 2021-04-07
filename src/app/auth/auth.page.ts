@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 
 import { AuthService } from './auth.service';
 
@@ -17,24 +17,34 @@ export class AuthPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
   }
 
-  onLogin() {
+  authenticate(email: string, password: string) {
     this.isLoading = true;
     this.authService.login();
     this.loadingCtrl
       .create({keyboardClose: true, message: 'Logging in...'})
       .then(loadingEl => {
         loadingEl.present();
-        setTimeout(() => {
+        this.authService.signup(email, password).subscribe(response => {
+          console.log(response);
           this.isLoading = false;
           loadingEl.dismiss();
           this.router.navigateByUrl('/places/tabs/discover');
-        }, 1500);
+        }, errorResponse => {
+          loadingEl.dismiss();
+          const code = errorResponse.error.error.message;
+          let message = 'Could not sign you up, please try again';
+          if (code === 'EMAIL_EXISTS') {
+            message = 'This email address already exists!';
+          }
+          this.showAlert(message);
+        });
       });
   }
 
@@ -48,12 +58,18 @@ export class AuthPage implements OnInit {
     }
     const email = form.value.email;
     const password = form.value.password;
-    console.log(email, password);
 
-    if (this.isLogin) {
-      // Send a request to login servers
-      // Send a request to sign up servers
-    }
+    this.authenticate(email, password);
+  }
+
+  private showAlert(message: string) {
+    this.alertCtrl.create({
+      header: 'Authentication failed',
+      message,
+      buttons: ['Okay']
+    }).then(alertEl => {
+      alertEl.present();
+    })
   }
 
 

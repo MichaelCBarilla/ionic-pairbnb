@@ -1,6 +1,6 @@
 import { map, switchMap } from 'rxjs/operators';
 import { ModalController, ActionSheetController, AlertController } from '@ionic/angular';
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { MapModalComponent } from './../../map-modal/map-modal.component';
@@ -16,6 +16,7 @@ import { Capacitor, Plugins } from '@capacitor/core';
 })
 export class LocationPickerComponent implements OnInit {
   @Output() locationPick = new EventEmitter<PlaceLocation>();
+  @Input() showPreview = false;
   selectedLocationImage: string;
   isLoading = false;
 
