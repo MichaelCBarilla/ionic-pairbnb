@@ -48,7 +48,7 @@ export class BookingsService {
         take(1),
         switchMap(token => {
           return this.http.get<{[key: string]: BookingData}>(
-            `https://ionic-angular-course-22b9c-default-rtdb.firebaseio.com/my-bookings.json?orderBy="userId"&equalTo="${fetchedUserId}"&auth="${token}"`
+            `https://ionic-angular-course-22b9c-default-rtdb.firebaseio.com/my-bookings.json?orderBy="userId"&equalTo="${fetchedUserId}"&auth=${token}`
           );
         }),
         map(response => {
