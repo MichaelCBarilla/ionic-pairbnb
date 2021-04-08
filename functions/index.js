@@ -23,7 +23,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
       return res.status(500).json({ message: 'Not allowed.' });
     }
 
-    if (req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
       return res.status(401).json({error: 'Unauthorized!'});
     }
 
